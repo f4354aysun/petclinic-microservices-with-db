@@ -1,0 +1,425 @@
+Script started on 2023-01-30 12:11:03+0000
+                    env.MASTER_PUBLIC_IP = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=master Name=tag-value,Values=tera-kube-ans Name=instance-state-name,Values=running --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
+                    while(true) {
+                        try{
+                            sh "curl -s ${MASTER_PUBLIC_IP}:30001"
+                            echo "${APP_NAME} app is successfully deployed."
+                            break
+                        }
+                        catch(Exception){
+                            echo "Could not connect to ${APP_NAME} app"
+                            sleep(5)
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Run QA Automation Tests'){
+            steps {
+                echo "Run the Selenium Functional Test on QA Environment"
+                sh 'ansible-playbook -vvv --connection=local --inventory 127.0.0.1, --extra-vars "workspace=${WORKSPACE} master_public_ip=${MASTER_PUBLIC_IP}" ./ansible/playbooks/pb_run_selenium_jobs.yaml'
+            }
+        }
+ }
+
+    post {
+        always {
+            echo 'Deleting all local images'
+            sh 'docker image prune -af'
+            echo 'Delete the Image Repository on ECR'
+            sh """
+                aws ecr delete-repository \
+                  --repository-name ${APP_REPO_NAME} \
+                  --region ${AWS_REGION}\
+                  --force
+                """
+            echo 'Tear down the Kubernetes Cluster'
+            sh """
+            cd infrastructure/dev-k8s-terraform
+            terraform destroy -auto-approve -no-color
+            """
+            echo "Delete existing key pair using AWS CLI"
+            sh "aws ec2 delete-key-pair --region ${AWS_REGION} --key-name ${ANS_KEYPAIR}"
+            sh "rm -rf ${ANS_KEYPAIR}"
+        }
+    }
+}]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[?1034h[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                    env.MASTER_PUBLIC_IP = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=m aster Name=tag-value,Values=tera-kube-ans Name=instance-state-name,Values=running --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
+bash: syntax error near unexpected token `('
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                    while(true) {
+bash: syntax error near unexpected token `{'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                        try{
+bash: try{: command not found
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                            sh "curl -s ${MASTER_PUBLIC_IP}:30001"
+sh: curl -s :30001: No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                            echo "${APP_NAME} app is successfully deployed."
+ app is successfully deployed.
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                            break
+bash: break: only meaningful in a `for', `while', or `until' loop
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                        }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                        catch(Exception){
+bash: syntax error near unexpected token `Exception'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                            echo "Could not connect to ${APP_NAME} app"
+Could not connect to  app
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                            sleep(5)
+bash: syntax error near unexpected token `5'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                        }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                    }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m        }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m        stage('Run QA Automation Tests'){
+bash: syntax error near unexpected token `'Run QA Automation Tests''
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            steps {
+bash: steps: command not found
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                echo "Run the Selenium Functional Test on QA Environment"
+Run the Selenium Functional Test on QA Environment
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                sh 'ansible-playbook -vvv --connection=local --inventory 127.0.0.1, --extra-vars "workspace=${WORKSPACE} master_public_ip =${MASTER_PUBLIC_IP}" ./ansible/playbooks/pb_run_selenium_jobs.yaml'
+sh: ansible-playbook -vvv --connection=local --inventory 127.0.0.1, --extra-vars "workspace=${WORKSPACE} master_public_ip=${MASTER_PUBLIC_IP}" ./ansible/playbooks/pb_run_selenium_jobs.yaml: No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m        }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m    post {
+bash: post: command not found
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m        always {
+bash: always: command not found
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            echo 'Deleting all local images'
+Deleting all local images
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            sh 'docker image prune -af'
+sh: docker image prune -af: No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            echo 'Delete the Image Repository on ECR'
+Delete the Image Repository on ECR
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            sh """
+>                 aws ecr delete-repository \
+>                   --repository-name ${APP_REPO_NAME} \
+>                   --region ${AWS_REGION}\
+>                   --force
+>                 """
+sh: 
+                aws ecr delete-repository                   --repository-name                    --region                   --force
+                : No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            echo 'Tear down the Kubernetes Cluster'
+Tear down the Kubernetes Cluster
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            sh """
+>             cd infrastructure/dev-k8s-terraform
+>             terraform destroy -auto-approve -no-color
+>             """
+sh: 
+            cd infrastructure/dev-k8s-terraform
+            terraform destroy -auto-approve -no-color
+            : No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            echo "Delete existing key pair using AWS CLI"
+Delete existing key pair using AWS CLI
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            sh "aws ec2 delete-key-pair --region ${AWS_REGION} --key-name ${ANS_KEYPAIR}"
+sh: aws ec2 delete-key-pair --region  --key-name : No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            sh "rm -rf ${ANS_KEYPAIR}"
+sh: rm -rf : No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m        }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m    }
+bash: syntax error near unexpected token `}'
+]0;ec2-db:[34m[1;34m (feature/msp-18-1)$[00m
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m        stage('Test the Application Deployment'){
+bash: syntax error near unexpected token `'Test the Application Deployment''
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            steps {
+bash: steps: command not found
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                echo "Check if the ${APP_NAME} app is ready or not"
+Check if the  app is ready or not
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                script {
+Script started, file is {
+                    env.MASTER_PUBLIC_IP = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=master Name=tag-value,Values=tera-kube-ans Name=instance-state-name,Values=running --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
+                    while(true) {
+                        try{
+                            sh "curl -s ${MASTER_PUBLIC_IP}:30001"
+                            echo "${APP_NAME} app is successfully deployed."
+                            break
+                        }
+                        catch(Exception){
+                            echo "Could not connect to ${APP_NAME} app"
+                            sleep(5)
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Run QA Automation Tests'){
+            steps {
+                echo "Run the Selenium Functional Test on QA Environment"
+                sh 'ansible-playbook -vvv --connection=local --inventory 127.0.0.1, --extra-vars "workspace=${WORKSPACE} master_public_ip=${MASTER_PUBLIC_IP}" ./ansible/playbooks/pb_run_selenium_jobs.yaml'
+            }
+        }
+ }
+
+    post {
+        always {
+            echo 'Deleting all local images'
+            sh 'docker image prune -af'
+            echo 'Delete the Image Repository on ECR'
+            sh """
+                aws ecr delete-repository \
+                  --repository-name ${APP_REPO_NAME} \
+                  --region ${AWS_REGION}\
+                  --force
+                """
+            echo 'Tear down the Kubernetes Cluster'
+            sh """
+            cd infrastructure/dev-k8s-terraform
+            terraform destroy -auto-approve -no-color
+            """
+            echo "Delete existing key pair using AWS CLI"
+            sh "aws ec2 delete-key-pair --region ${AWS_REGION} --key-name ${ANS_KEYPAIR}"
+            sh "rm -rf ${ANS_KEYPAIR}"
+        }
+    }
+}]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[?1034h[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                    env.MASTER_PUBLIC_IP = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=m aster Name=tag-value,Values=tera-kube-ans Name=instance-state-name,Values=running --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
+bash: syntax error near unexpected token `('
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                    while(true) {
+bash: syntax error near unexpected token `{'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                        try{
+bash: try{: command not found
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                            sh "curl -s ${MASTER_PUBLIC_IP}:30001"
+sh: curl -s :30001: No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                            echo "${APP_NAME} app is successfully deployed."
+ app is successfully deployed.
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                            break
+bash: break: only meaningful in a `for', `while', or `until' loop
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                        }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                        catch(Exception){
+bash: syntax error near unexpected token `Exception'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                            echo "Could not connect to ${APP_NAME} app"
+Could not connect to  app
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                            sleep(5)
+bash: syntax error near unexpected token `5'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                        }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                    }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m        }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m        stage('Run QA Automation Tests'){
+bash: syntax error near unexpected token `'Run QA Automation Tests''
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            steps {
+bash: steps: command not found
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                echo "Run the Selenium Functional Test on QA Environment"
+Run the Selenium Functional Test on QA Environment
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                sh 'ansible-playbook -vvv --connection=local --inventory 127.0.0.1, --extra-vars "workspace=${WORKSPACE} master_public_ip =${MASTER_PUBLIC_IP}" ./ansible/playbooks/pb_run_selenium_jobs.yaml'
+sh: ansible-playbook -vvv --connection=local --inventory 127.0.0.1, --extra-vars "workspace=${WORKSPACE} master_public_ip=${MASTER_PUBLIC_IP}" ./ansible/playbooks/pb_run_selenium_jobs.yaml: No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m        }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m    post {
+bash: post: command not found
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m        always {
+bash: always: command not found
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            echo 'Deleting all local images'
+Deleting all local images
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            sh 'docker image prune -af'
+sh: docker image prune -af: No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            echo 'Delete the Image Repository on ECR'
+Delete the Image Repository on ECR
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            sh """
+>                 aws ecr delete-repository \
+>                   --repository-name ${APP_REPO_NAME} \
+>                   --region ${AWS_REGION}\
+>                   --force
+>                 """
+sh: 
+                aws ecr delete-repository                   --repository-name                    --region                   --force
+                : No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            echo 'Tear down the Kubernetes Cluster'
+Tear down the Kubernetes Cluster
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            sh """
+>             cd infrastructure/dev-k8s-terraform
+>             terraform destroy -auto-approve -no-color
+>             """
+sh: 
+            cd infrastructure/dev-k8s-terraform
+            terraform destroy -auto-approve -no-color
+            : No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            echo "Delete existing key pair using AWS CLI"
+Delete existing key pair using AWS CLI
+]0;ec2-user@jenkins-server:~                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                le/myapp/"
+sh: helm repo add stable-petclinic s3://petclinic-helm-charts-<put-your-name>/stable/myapp/: No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                sh "helm package k8s/petclinic_chart"
+sh: helm package k8s/petclinic_chart: No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                sh "helm s3 push --force petclinic_chart-${BUILD_NUMBER}.tgz stable-petclinic"
+sh: helm s3 push --force petclinic_chart-.tgz stable-petclinic: No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                sh "envsubst < ansible/playbooks/dev-petclinic-deploy-template > ansible/playbooks/dev-petclinic-deploy.yaml"
+sh: envsubst < ansible/playbooks/dev-petclinic-deploy-template > ansible/playbooks/dev-petclinic-deploy.yaml: No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                sh "sleep 60"    
+sh: sleep 60: No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                sh "ansible-playbook -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml ./ansible/playbooks/dev-petclinic-de ploy.yaml"
+sh: ansible-playbook -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml ./ansible/playbooks/dev-petclinic-deploy.yaml: No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m        }     
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m        stage('Test the Application Deployment'){
+bash: syntax error near unexpected token `'Test the Application Deployment''
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            steps {
+bash: steps: command not found
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                echo "Check if the ${APP_NAME} app is ready or not"
+Check if the  app is ready or not
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                script {
+Script started, file is {
+                    env.MASTER_PUBLIC_IP = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=master Name=tag-value,Values=tera-kube-ans Name=instance-state-name,Values=running --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
+                    while(true) {
+                        try{
+                            sh "curl -s ${MASTER_PUBLIC_IP}:30001"
+                            echo "${APP_NAME} app is successfully deployed."
+                            break
+                        }
+                        catch(Exception){
+                            echo "Could not connect to ${APP_NAME} app"
+                            sleep(5)
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Run QA Automation Tests'){
+            steps {
+                echo "Run the Selenium Functional Test on QA Environment"
+                sh 'ansible-playbook -vvv --connection=local --inventory 127.0.0.1, --extra-vars "workspace=${WORKSPACE} master_public_ip=${MASTER_PUBLIC_IP}" ./ansible/playbooks/pb_run_selenium_jobs.yaml'
+            }
+        }
+ }
+
+    post {
+        always {
+            echo 'Deleting all local images'
+            sh 'docker image prune -af'
+            echo 'Delete the Image Repository on ECR'
+            sh """
+                aws ecr delete-repository \
+                  --repository-name ${APP_REPO_NAME} \
+                  --region ${AWS_REGION}\
+                  --force
+                """
+            echo 'Tear down the Kubernetes Cluster'
+            sh """
+            cd infrastructure/dev-k8s-terraform
+            terraform destroy -auto-approve -no-color
+            """
+            echo "Delete existing key pair using AWS CLI"
+            sh "aws ec2 delete-key-pair --region ${AWS_REGION} --key-name ${ANS_KEYPAIR}"
+            sh "rm -rf ${ANS_KEYPAIR}"
+        }
+    }
+}]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[?1034h[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                    env.MASTER_PUBLIC_IP = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=m aster Name=tag-value,Values=tera-kube-ans Name=instance-state-name,Values=running --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
+bash: syntax error near unexpected token `('
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                    while(true) {
+bash: syntax error near unexpected token `{'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                        try{
+bash: try{: command not found
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                            sh "curl -s ${MASTER_PUBLIC_IP}:30001"
+sh: curl -s :30001: No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                            echo "${APP_NAME} app is successfully deployed."
+ app is successfully deployed.
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                            break
+bash: break: only meaningful in a `for', `while', or `until' loop
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                        }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                        catch(Exception){
+bash: syntax error near unexpected token `Exception'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                            echo "Could not connect to ${APP_NAME} app"
+Could not connect to  app
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                            sleep(5)
+bash: syntax error near unexpected token `5'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                        }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                    }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m        }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m        stage('Run QA Automation Tests'){
+bash: syntax error near unexpected token `'Run QA Automation Tests''
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            steps {
+bash: steps: command not found
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                echo "Run the Selenium Functional Test on QA Environment"
+Run the Selenium Functional Test on QA Environment
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m                sh 'ansible-playbook -vvv --connection=local --inventory 127.0.0.1, --extra-vars "workspace=${WORKSPACE} master_public_ip =${MASTER_PUBLIC_IP}" ./ansible/playbooks/pb_run_selenium_jobs.yaml'
+sh: ansible-playbook -vvv --connection=local --inventory 127.0.0.1, --extra-vars "workspace=${WORKSPACE} master_public_ip=${MASTER_PUBLIC_IP}" ./ansible/playbooks/pb_run_selenium_jobs.yaml: No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m        }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m    post {
+bash: post: command not found
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m        always {
+bash: always: command not found
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            echo 'Deleting all local images'
+Deleting all local images
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            sh 'docker image prune -af'
+sh: docker image prune -af: No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            echo 'Delete the Image Repository on ECR'
+Delete the Image Repository on ECR
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            sh """
+>                 aws ecr delete-repository \
+>                   --repository-name ${APP_REPO_NAME} \
+>                   --region ${AWS_REGION}\
+>                   --force
+>                 """
+sh: 
+                aws ecr delete-repository                   --repository-name                    --region                   --force
+                : No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            echo 'Tear down the Kubernetes Cluster'
+Tear down the Kubernetes Cluster
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            sh """
+>             cd infrastructure/dev-k8s-terraform
+>             terraform destroy -auto-approve -no-color
+>             """
+sh: 
+            cd infrastructure/dev-k8s-terraform
+            terraform destroy -auto-approve -no-color
+            : No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            echo "Delete existing key pair using AWS CLI"
+Delete existing key pair using AWS CLI
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            sh "aws ec2 delete-key-pair --region ${AWS_REGION} --key-name ${ANS_KEYPAIR}"
+sh: aws ec2 delete-key-pair --region  --key-name : No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m            sh "rm -rf ${ANS_KEYPAIR}"
+sh: rm -rf : No such file or directory
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m        }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m    }
+bash: syntax error near unexpected token `}'
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00m}git add .
+bash: }git: command not found
+]0;ec2-user@jenkins-server:~/petclinic-microservices-with-db[1;34mec2-user[33m@jenkins-server# petclinic-microservices-with-db:[34m[1;34m (feature/msp-18-1)$[00mgit commit -m 'added qa automation pipeline for dev'
+On branch feature/msp-18-1
+Your branch is up to date with 'origin/feature/msp-18-1'.
+
+Changes not staged for commit:
+  (use "git add <file>..
