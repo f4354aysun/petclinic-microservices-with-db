@@ -14,4 +14,8 @@ if "I'm Feeling Lucky" in source:
   print("Test passed")
 else:
   print("Test failed")
+<<<<<<< HEAD
 driver.close() 
+=======
+driver.close()
+>>>>>>> feature/msp-18
